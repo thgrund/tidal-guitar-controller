@@ -1,0 +1,46 @@
+stackFromList :: [a] -> Pattern a
+stackFromList = stack . map pure
+
+patternToList :: Pattern a -> [a]
+patternToList pat = (map value (queryArc pat (Arc 0 1)))
+
+gitNote = pN "gitNote"
+
+cond pat = gitNote $ stackFromList $ patternToList pat
+
+d1 $ (fix ((# room 0.4) . (# gain 0.8) . (# dly 0.2 0.6))
+     (cat [cond $ "[c6 .. d6]", cond $ "[c5 .. d6]"]))
+   $ (fix (
+        (superimpose ((rev) . (# pan 0.2)))
+        . (# pan 0.8)
+        . (# phasr 2)
+        . (# phasdp 2)
+        . (# gain 0.9) )
+      (cond $ "e6"))
+   $ s "supervibe" 
+   <| n (scale "dorian" ("<[0 2*2 3@2] [4 3@2 4] [7@2 2 3] [4@2 2@2]>"))
+   |+ n "2" # gitNote (cN 0 "notes")
+
+d2 $ (fix (# silence) (cond $ "d4"))
+   $ (fix ((slow 2) . (rev)) (cond $ "d6"))
+   $ every 2 (sply 2)
+   $ every 4 (ply 2)
+   $ while "<t t [f t] f t>" palindrome
+   $ stack [
+    s "<~ 808cy>" # n "<0 0 1 1>"
+    , s "[808bd:2(5,8)]" # gain 1.3
+    , s "~ techno:2"
+    , s "808oh" <| n "<0*8 [0*8 0*4] 0*8 [0*4 0*8]>" # gain 0.9 ]
+   # gitNote (cN 0 "notes")
+
+d3 $ (fix (# silence) (cond $ "d4"))
+   $ fix (struct "t(5,8)") (cond $ "e6")
+   $ s "moog"
+   # up (scale "dorian" ("<0 0 1 -2 -2 0 3 0>") )
+   |+ up "2" # legato 1 # cutoff 2000 # gitNote (cN 0 "notes")
+
+d4 $ (fix (# cutoff 1000)  (cond $ "d6"))
+   $ (fix (# lfo 2) (cond $ "a5"))
+   $ s "superpwm"
+   <| n "<d4'min d4'min e4'sus2 a3'sus4 a3'sus4 d4'min6 g4'maj d4'min7>"
+   # lfo 0 # rate 0.5 # legato 1 # gitNote (cN 0 "notes")
